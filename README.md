@@ -21,6 +21,6 @@ hi
 
 ## Plugins ##
 as
-[Activation]: #Activation
+[Activation]: #activation
 
-[Plugins]: #Plugins
+[Plugins]: #plugins

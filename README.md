@@ -16,10 +16,11 @@ messages (See [Activation][]); the buffer is converted to markdown and
 you may edit at will, but the file is still saved as html behind the
 scenes so GMail won't know a thing! 
 
+## Activation ##
+hi
+
+## Plugins ##
+as
 [Activation]: #Activation
 
 [Plugins]: #Plugins
-
-
-
-

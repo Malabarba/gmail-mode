@@ -5,6 +5,7 @@
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/gmail-mode
 ;; Version: 1.0
+;; Package-Requires: ((html-to-markdown "1.1"))
 ;; Keywords: mail convenience emulation
 ;; Prefix: gmail-mode
 ;; Separator: -
@@ -54,12 +55,6 @@ Please include your emacs and gmail-mode versions."
            gmail-mode-version emacs-version)
   (browse-url "https://github.com/Bruce-Connor/gmail-mode/issues/new"))
 
-(defcustom gmail-mode-markdown-command (or (executable-find "markdown")
-                                           (executable-find "Markdown"))
-  "Full path to the markdown executable."
-  :type 'string
-  :group 'gmail-mode)
-
 (defun gmail-mode-save-finish-suspend ()
   "Save the buffer as html, call `server-edit', and suspend the emacs frame.
 
@@ -75,42 +70,26 @@ browser can take focus automatically."
       (suspend-frame)
     (message "Not in a graphical frame, won't call `suspend-frame'.")))
 
-(defun gmail-mode--markdown-to-html ()
-  ""
-  (interactive)
-  (unless (file-executable-p gmail-mode-markdown-command)
-    (error "Can't find the markdown executable! Is it installed? See `gmail-mode-markdown-command'"))
-  (let ((file (buffer-file-name))
-        output return)
-    (unless file
-      (error (substitute-command-keys "This buffer isn't visiting a file. \\[write-file] to save it.")))
-    (setq output 
-          (with-temp-buffer
-            (setq return (call-process
-                          gmail-mode-markdown-command
-                          nil t nil "--html4tags" file))
-            (buffer-string)))
-    (when (= return 0)
-      (write-region output nil file nil t)
-      output)))
-
 ;;;###autoload
-(define-derived-mode gmail-mode markdown-mode "GMail"
+(define-derived-mode gmail-mode ham-mode "GMail"
   "Designed for GMail messages. Transparently edit an html file using markdown.
 
 When this mode is activated in an html file, the buffer is
 converted to markdown and you may edit at will, but the file is
 still saved as html behind the scenes.
-
+\\<gmail-mode-map>
 Also defines a key \\[gmail-mode-save-finish-suspend] for `gmail-mode-save-finish-suspend'.
 
 \\{gmail-mode-map}"
-  :group 'gmail-mode
-  (html-to-markdown-this-buffer)
-  (set-buffer-modified-p nil)
-  (add-hook 'after-save-hook 'gmail-mode--markdown-to-html nil :local))
+  :group 'gmail-mode)
 
-(define-key gmail-mode-map (kbd "C-c C-3") 'gmail-mode-save-finish-suspend)
+(define-key gmail-mode-map (kbd "C-c C-z") 'gmail-mode-save-finish-suspend)
+
+;;;###autoload
+(progn
+  (add-to-list 'auto-mode-alist '("mail-google-com.*.\\(ckr\\|htm\\)\\'" . gmail-mode))
+  (add-to-list 'auto-mode-alist '(".*/itsalltext/mail\.google\..*\\'" . gmail-mode)))
+
 
 (provide 'gmail-mode)
 ;;; gmail-mode.el ends here.

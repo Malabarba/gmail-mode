@@ -17,10 +17,46 @@ you may edit at will, but the file is still saved as html behind the
 scenes so GMail won't know a thing! 
 
 ## Activation ##
-hi
+Make sure you install it:
+
+    M-x package-install RET gmail-mode
+
+And that's it!  
+*(if you install manually, check the ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))*
+
+This package will (using `auto-mode-alist`) configure emacs to
+activate `gmail-mode` whenever you're editing a file that seems to be
+a gmail message. However, given the wide range of possible plugins,
+it's hard to catch them all. You may have to add entries manually to
+`auto-mode-alist`, to make sure `gmail-mode` is activated.
+
+Here's an example. One of the lines in `gmail-mode-activate` is:
+
+    
 
 ## Plugins ##
-as
+
+1. **Firefox** - [It's all text][] combined with [Old Compose][] (see
+   [this thread][] on why you need the second).
+2. **Google-Chrome** - [Several][]
+3. **Conkeror** - [Spawn Helper (built-in)][]
+
+
 [Activation]: #activation
 
 [Plugins]: #plugins
+
+[It's all text]: https://addons.mozilla.org/en-US/firefox/addon/its-all-text/
+
+[Several]: http://superuser.com/questions/261689/its-all-text-for-chrome
+
+[Spawn Helper (built-in)]: http://conkeror.org/ConkerorSpawnHelper
+
+[this thread]: http://github.com/docwhat/itsalltext
+
+[Old Compose]: http://oldcompose.com/
+
+
+
+
+

@@ -22,7 +22,7 @@ Make sure you install it:
     M-x package-install RET gmail-mode
 
 And that's it!  
-*(if you install manually, check the ;; Package-Requires: ((emacs "24.3") (dash "2.2.0"))*
+*(if you install manually, note that it depends on [`ham-mode`][])*
 
 This package will (using `auto-mode-alist`) configure emacs to
 activate `gmail-mode` whenever you're editing a file that seems to be
@@ -31,6 +31,9 @@ it's hard to catch them all. You may have to add entries manually to
 `auto-mode-alist`, to make sure `gmail-mode` is activated.
 
 Here's an example. One of the lines in `gmail-mode-activate` is:
+
+[ham-mode]: https://github.com/Bruce-Connor/ham-mode
+
 
     
 

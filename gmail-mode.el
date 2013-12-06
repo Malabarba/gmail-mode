@@ -5,7 +5,7 @@
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/gmail-mode
 ;; Version: 1.0
-;; Package-Requires: ((html-to-markdown "1.1"))
+;; Package-Requires: ((ham-mode "1.0"))
 ;; Keywords: mail convenience emulation
 ;; Prefix: gmail-mode
 ;; Separator: -
@@ -55,6 +55,26 @@ Please include your emacs and gmail-mode versions."
            gmail-mode-version emacs-version)
   (browse-url "https://github.com/Bruce-Connor/gmail-mode/issues/new"))
 
+;;;###autoload
+(defcustom gmail-mode-auto-mode-list
+  '("mail.google.com.*.\\(ckr\\|html?\\|txt\\)\\'" ;conkeror and other stuff
+    ".*[\\\\/]itsalltext[\\\\/]mail\.google\..*\\'" ;it's all text
+    )
+  "List of regexps which will be added to `auto-mode-alist' (associated to `gmail-mode').
+
+If the file path matches any of these, `gmail-mode' will be
+activated on the current file.
+
+If you add items manually (not through the customization
+interface), you'll need to call `gmail-mode--set-amlist' for it
+to take effect.
+Removing items only takes effect after restarting Emacs."
+  :type '(repeat regexp)
+  :group 'gmail-mode
+  :set 'gmail-mode--set-amlist
+  :initialize 'custom-initialize-default
+  :package-version '(gmail-mode . "1.0"))
+
 (defun gmail-mode-save-finish-suspend ()
   "Save the buffer as html, call `server-edit', and suspend the emacs frame.
 
@@ -86,9 +106,15 @@ Also defines a key \\[gmail-mode-save-finish-suspend] for `gmail-mode-save-finis
 (define-key gmail-mode-map (kbd "C-c C-z") 'gmail-mode-save-finish-suspend)
 
 ;;;###autoload
-(progn
-  (add-to-list 'auto-mode-alist '("mail-google-com.*.\\(ckr\\|htm\\)\\'" . gmail-mode))
-  (add-to-list 'auto-mode-alist '(".*/itsalltext/mail\.google\..*\\'" . gmail-mode)))
+(defun gmail-mode--set-amlist (&optional sym val)
+  "Reset the auto-mode-alist."
+  (when sym
+    (set-default sym val))
+  (mapc
+   (lambda (x) (add-to-list 'auto-mode-alist (cons x 'gmail-mode)))
+   gmail-mode-auto-mode-list))
+;;;###autoload
+(gmail-mode--set-amlist)
 
 
 (provide 'gmail-mode)

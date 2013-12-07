@@ -180,7 +180,9 @@ Also defines a key \\[gmail-mode-save-finish-suspend] for `gmail-mode-save-finis
    (lambda (x) (add-to-list 'auto-mode-alist (cons x 'gmail-mode)))
    gmail-mode-auto-mode-list))
 ;;;###autoload
-(gmail-mode--set-amlist)
+(mapc
+ (lambda (x) (add-to-list 'auto-mode-alist (cons x 'gmail-mode)))
+ gmail-mode-auto-mode-list)
 
 (provide 'gmail-mode)
 ;;; gmail-mode.el ends here.

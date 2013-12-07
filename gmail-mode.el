@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/gmail-mode
-;; Version: 1.0
+;; Version: 1.0.1
 ;; Package-Requires: ((ham-mode "1.0"))
 ;; Keywords: mail convenience emulation
 ;; Prefix: gmail-mode
@@ -86,11 +86,12 @@
 ;; 
 
 ;;; Change Log:
-;; 1.0 - 2013/12/05 - Created File.
+;; 1.0.1 - 2013/12/07 - gmail-mode--blockquote.
+;; 1.0   - 2013/12/05 - Created File.
 ;;; Code:
 
-(defconst gmail-mode-version "1.0" "Version of the gmail-mode.el package.")
-(defconst gmail-mode-version-int 1 "Version of the gmail-mode.el package, as an integer.")
+(defconst gmail-mode-version "1.0.1" "Version of the gmail-mode.el package.")
+(defconst gmail-mode-version-int 2 "Version of the gmail-mode.el package, as an integer.")
 (defun gmail-mode-bug-report ()
   "Opens github issues page in a web browser. Please send any bugs you find.
 Please include your emacs and gmail-mode versions."
@@ -137,6 +138,23 @@ browser can take focus automatically."
       (suspend-frame)
     (message "Not in a graphical frame, won't call `suspend-frame'.")))
 
+(defvar gmail-mode--blockquote
+  (concat "<blockquote style=\"margin: 0px 0px 0px 0.8ex;"
+          " border-left: 1px solid rgb(204, 204, 204);"
+          " padding-left: 1ex;"
+          "\" class=\"gmail_quote\">"))
+
+(defun gmail-mode--fix-tags (file)
+  "Fix special tags for gmail, such as blockquote."
+  (let ((newContents
+         (with-temp-buffer
+           (insert-file-contents file)
+           (goto-char (point-min))
+           (while (search-forward "<blockquote>" nil t)
+             (replace-match gmail-mode--blockquote :fixedcase :literal))
+           (buffer-string))))
+    (write-region newContents nil file nil t)))
+
 ;;;###autoload
 (define-derived-mode gmail-mode ham-mode "GMail"
   "Designed for GMail messages. Transparently edit an html file using markdown.
@@ -148,7 +166,8 @@ still saved as html behind the scenes.
 Also defines a key \\[gmail-mode-save-finish-suspend] for `gmail-mode-save-finish-suspend'.
 
 \\{gmail-mode-map}"
-  :group 'gmail-mode)
+  :group 'gmail-mode
+  (add-hook 'ham-mode-md2html-hook 'gmail-mode--fix-tags :local))
 
 (define-key gmail-mode-map (kbd "C-c C-z") 'gmail-mode-save-finish-suspend)
 
@@ -162,7 +181,6 @@ Also defines a key \\[gmail-mode-save-finish-suspend] for `gmail-mode-save-finis
    gmail-mode-auto-mode-list))
 ;;;###autoload
 (gmail-mode--set-amlist)
-
 
 (provide 'gmail-mode)
 ;;; gmail-mode.el ends here.

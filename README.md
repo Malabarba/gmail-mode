@@ -4,17 +4,18 @@ gmail-mode
 **gmail-mode** is an emacs major-mode for editing gmail messages using
 markdown syntax, it is meant for use with browser plugins which allow
 you to edit text fields with external applications (in this case,
-emacs). See [Plugins][] for a list for each browser.
+emacs). See [Plugins][] below for a list for each browser.
 
-**The problem:** Lately, gmail messages have been using html. That
+**The problem:** Lately, gmail messages have been demanding html. That
   made it very hard to edit them outside your browser, because you had
   to edit html source code (for instance, linebreaks were ignored and
   you had to type `<br>` instead).
 
 **gmail-mode to the rescue:** Simply activate this mode in gmail
-messages (See [Activation][]); the buffer is converted to markdown and
-you may edit at will, but the file is still saved as html behind the
-scenes so GMail won't know a thing! 
+  messages (See [Activation][]); the buffer is converted to markdown
+  and you may edit at will, but the file is still saved as html behind
+  the scenes so GMail won't know a thing! *See [ham-mode][1] to
+  understand how this works.*
 
 ## Activation ##
 Make sure you install it:
@@ -22,7 +23,7 @@ Make sure you install it:
     M-x package-install RET gmail-mode
 
 And that's it!  
-*(if you install manually, note that it depends on [`ham-mode`][])*
+*(if you install manually, note that it depends on [ham-mode][1])*
 
 This package will (using `auto-mode-alist`) configure emacs to
 activate `gmail-mode` whenever you're editing a file that seems to be
@@ -31,11 +32,6 @@ it's hard to catch them all. You may have to add entries manually to
 `auto-mode-alist`, to make sure `gmail-mode` is activated.
 
 Here's an example. One of the lines in `gmail-mode-activate` is:
-
-[ham-mode]: https://github.com/Bruce-Connor/ham-mode
-
-
-    
 
 ## Plugins ##
 
@@ -59,7 +55,4 @@ Here's an example. One of the lines in `gmail-mode-activate` is:
 
 [Old Compose]: http://oldcompose.com/
 
-
-
-
-
+[1]: https://github.com/Bruce-Connor/ham-mode

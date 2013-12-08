@@ -1,55 +1,59 @@
-;;; gmail-mode.el --- A major-mode for editing gmail messages using markdown syntax.
+;;; gmail-message-mode.el --- A major-mode for editing gmail messages using markdown syntax.
 
 ;; Copyright (C) 2013 Artur Malabarba <bruce.connor.am@gmail.com>
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
-;; URL: http://github.com/Bruce-Connor/gmail-mode
+;; URL: http://github.com/Bruce-Connor/gmail-message-mode
 ;; Version: 1.0.1
 ;; Package-Requires: ((ham-mode "1.0"))
 ;; Keywords: mail convenience emulation
-;; Prefix: gmail-mode
+;; Prefix: gmail-message-mode
 ;; Separator: -
 
 ;;; Commentary:
 ;;
-;; **gmail-mode** is an emacs major-mode for editing gmail messages
-;; using markdown syntax, it is meant for use with browser plugins
-;; which allow you to edit text fields with external applications (in
-;; this case, emacs). See [Plugins][] below for a list for each
+;; gmail-message-mode
+;; ==========
+;; 
+;; **gmail-message-mode** is an emacs major-mode for editing gmail
+;; messages using markdown syntax, it is meant for use with browser
+;; plugins which allow you to edit text fields with external applications
+;; (in this case, emacs). See [Plugins][] below for a list for each
 ;; browser.
 ;; 
-;; *The problem:* Lately, gmail messages have been demanding html.
-;; That made it very hard to edit them outside your browser, because
-;; you had to edit html source code (for instance, linebreaks were
-;; ignored and you had to type `<br>' instead).
-;; 
-;; *gmail-mode to the rescue:* Simply activate this mode in gmail
-;; messages (See [Activation][]); the buffer is converted to markdown
-;; and you may edit at will, but the file is still saved as html
-;; behind the scenes so GMail won't know a thing! *See [ham-mode][1]
-;; to understand how this works.*
-;; 
+;; **The problem:** Lately, gmail messages have been demanding html. That
+;;   made it very hard to edit them outside your browser, because you had
+;;   to edit html source code (for instance, linebreaks were ignored and
+;;   you had to type `<br>' instead).
+;;   
+;; **gmail-message-mode to the rescue:** Simply activate this mode in
+;;   gmail messages (See [Activation][]); the buffer is converted to
+;;   markdown and you may edit at will, but the file is still saved as
+;;   html behind the scenes so GMail won't know a thing! *See
+;;   [ham-mode][1] to understand how this works.*
+;;   
 ;; Activation
-;; ==========
+;; ----------
 ;; Make sure you install it:
 ;; 
-;;     M-x package-install RET gmail-mode
-;; 
+;;     M-x package-install RET gmail-message-mode
+;;     
 ;; And that's it!  
 ;; *(if you install manually, note that it depends on [ham-mode][1])*
 ;; 
 ;; This package will (using `auto-mode-alist') configure emacs to
-;; activate `gmail-mode' whenever you're editing a file that seems to be
-;; a gmail message. However, given the wide range of possible plugins,
-;; it's hard to catch them all. You may have to add entries manually to
-;; `auto-mode-alist', to make sure `gmail-mode' is activated.
+;; activate `gmail-message-mode' whenever you're editing a file that
+;; seems to be a gmail message. However, given the wide range of possible
+;; plugins, it's hard to catch them all. You may have to add entries
+;; manually to `auto-mode-alist', to make sure `gmail-message-mode' is
+;; activated.
 ;; 
-;; Here's an example. One of the lines in `gmail-mode-activate' is:
+;; Here's an example. One of the lines in `gmail-message-mode-activate'
+;; is:
 ;; 
 ;; ## Plugins ##
 ;; 
-;; 1. **Firefox** - [It's all text][] combined with [Old Compose][] (see
-;;    [this thread][] on why you need the second).
+;; 1. **Firefox** - [It's all text][] combined with [Old Compose][] (see [this thread][] on why you need the second).
 ;; 2. **Google-Chrome** - [Several][]
 ;; 3. **Conkeror** - [Spawn Helper (built-in)][]
 ;; 
@@ -86,44 +90,44 @@
 ;; 
 
 ;;; Change Log:
-;; 1.0.1 - 2013/12/07 - gmail-mode--blockquote.
+;; 1.0.1 - 2013/12/07 - gmail-message-mode--blockquote.
 ;; 1.0   - 2013/12/05 - Created File.
 ;;; Code:
 
-(defconst gmail-mode-version "1.0.1" "Version of the gmail-mode.el package.")
-(defconst gmail-mode-version-int 2 "Version of the gmail-mode.el package, as an integer.")
-(defun gmail-mode-bug-report ()
+(defconst gmail-message-mode-version "1.0.1" "Version of the gmail-message-mode.el package.")
+(defconst gmail-message-mode-version-int 2 "Version of the gmail-message-mode.el package, as an integer.")
+(defun gmail-message-mode-bug-report ()
   "Opens github issues page in a web browser. Please send any bugs you find.
-Please include your emacs and gmail-mode versions."
+Please include your emacs and gmail-message-mode versions."
   (interactive)
-  (message "Your gmail-mode-version is: %s, and your emacs version is: %s.\nPlease include this in your report!"
-           gmail-mode-version emacs-version)
-  (browse-url "https://github.com/Bruce-Connor/gmail-mode/issues/new"))
+  (message "Your gmail-message-mode-version is: %s, and your emacs version is: %s.\nPlease include this in your report!"
+           gmail-message-mode-version emacs-version)
+  (browse-url "https://github.com/Bruce-Connor/gmail-message-mode/issues/new"))
 
 ;;;###autoload
-(defcustom gmail-mode-auto-mode-list
+(defcustom gmail-message-mode-auto-mode-list
   '("mail.google.com.*.\\(ckr\\|html?\\|txt\\)\\'" ;conkeror and other stuff
     ".*[\\\\/]itsalltext[\\\\/]mail\.google\..*\\'" ;it's all text
     )
-  "List of regexps which will be added to `auto-mode-alist' (associated to `gmail-mode').
+  "List of regexps which will be added to `auto-mode-alist' (associated to `gmail-message-mode').
 
-If the file path matches any of these, `gmail-mode' will be
+If the file path matches any of these, `gmail-message-mode' will be
 activated on the current file.
 
-If you don't want `gmail-mode' to add itself to your
+If you don't want `gmail-message-mode' to add itself to your
 `auto-mode-alist' simply set this variable to nil.
 
 If you add items manually (not through the customization
-interface), you'll need to call `gmail-mode--set-amlist' for it
+interface), you'll need to call `gmail-message-mode--set-amlist' for it
 to take effect.
 Removing items only takes effect after restarting Emacs."
   :type '(repeat regexp)
-  :group 'gmail-mode
-  :set 'gmail-mode--set-amlist
+  :group 'gmail-message-mode
+  :set 'gmail-message-mode--set-amlist
   :initialize 'custom-initialize-default
-  :package-version '(gmail-mode . "1.0"))
+  :package-version '(gmail-message-mode . "1.0"))
 
-(defun gmail-mode-save-finish-suspend ()
+(defun gmail-message-mode-save-finish-suspend ()
   "Save the buffer as html, call `server-edit', and suspend the emacs frame.
 
 This command is used for finishing your edits. It'll do all the
@@ -138,51 +142,51 @@ browser can take focus automatically."
       (suspend-frame)
     (message "Not in a graphical frame, won't call `suspend-frame'.")))
 
-(defvar gmail-mode--blockquote
+(defvar gmail-message-mode--blockquote
   (concat "<blockquote style=\"margin: 0px 0px 0px 0.8ex;"
           " border-left: 1px solid rgb(204, 204, 204);"
           " padding-left: 1ex;"
           "\" class=\"gmail_quote\">"))
 
-(defun gmail-mode--fix-tags (file)
+(defun gmail-message-mode--fix-tags (file)
   "Fix special tags for gmail, such as blockquote."
   (let ((newContents
          (with-temp-buffer
            (insert-file-contents file)
            (goto-char (point-min))
            (while (search-forward "<blockquote>" nil t)
-             (replace-match gmail-mode--blockquote :fixedcase :literal))
+             (replace-match gmail-message-mode--blockquote :fixedcase :literal))
            (buffer-string))))
     (write-region newContents nil file nil t)))
 
 ;;;###autoload
-(define-derived-mode gmail-mode ham-mode "GMail"
+(define-derived-mode gmail-message-mode ham-mode "GMail"
   "Designed for GMail messages. Transparently edit an html file using markdown.
 
 When this mode is activated in an html file, the buffer is
 converted to markdown and you may edit at will, but the file is
 still saved as html behind the scenes.
-\\<gmail-mode-map>
-Also defines a key \\[gmail-mode-save-finish-suspend] for `gmail-mode-save-finish-suspend'.
+\\<gmail-message-mode-map>
+Also defines a key \\[gmail-message-mode-save-finish-suspend] for `gmail-message-mode-save-finish-suspend'.
 
-\\{gmail-mode-map}"
-  :group 'gmail-mode
-  (add-hook 'ham-mode-md2html-hook 'gmail-mode--fix-tags :local))
+\\{gmail-message-mode-map}"
+  :group 'gmail-message-mode
+  (add-hook 'ham-mode-md2html-hook 'gmail-message-mode--fix-tags :local))
 
-(define-key gmail-mode-map (kbd "C-c C-z") 'gmail-mode-save-finish-suspend)
+(define-key gmail-message-mode-map (kbd "C-c C-z") 'gmail-message-mode-save-finish-suspend)
 
 ;;;###autoload
-(defun gmail-mode--set-amlist (&optional sym val)
+(defun gmail-message-mode--set-amlist (&optional sym val)
   "Reset the auto-mode-alist."
   (when sym
     (set-default sym val))
   (mapc
-   (lambda (x) (add-to-list 'auto-mode-alist (cons x 'gmail-mode)))
-   gmail-mode-auto-mode-list))
+   (lambda (x) (add-to-list 'auto-mode-alist (cons x 'gmail-message-mode)))
+   gmail-message-mode-auto-mode-list))
 ;;;###autoload
 (mapc
- (lambda (x) (add-to-list 'auto-mode-alist (cons x 'gmail-mode)))
- gmail-mode-auto-mode-list)
+ (lambda (x) (add-to-list 'auto-mode-alist (cons x 'gmail-message-mode)))
+ gmail-message-mode-auto-mode-list)
 
-(provide 'gmail-mode)
-;;; gmail-mode.el ends here.
+(provide 'gmail-message-mode)
+;;; gmail-message-mode.el ends here.

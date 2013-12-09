@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/gmail-message-mode
-;; Version: 1.0.1
+;; Version: 1.1
 ;; Package-Requires: ((ham-mode "1.0"))
 ;; Keywords: mail convenience emulation
 ;; Prefix: gmail-message-mode
@@ -90,12 +90,13 @@
 ;; 
 
 ;;; Change Log:
+;; 1.1   - 2013/12/09 - gmail-message-mode-signature-properties can hide the signature.
 ;; 1.0.1 - 2013/12/07 - gmail-message-mode--blockquote.
 ;; 1.0   - 2013/12/05 - Created File.
 ;;; Code:
 
-(defconst gmail-message-mode-version "1.0.1" "Version of the gmail-message-mode.el package.")
-(defconst gmail-message-mode-version-int 2 "Version of the gmail-message-mode.el package, as an integer.")
+(defconst gmail-message-mode-version "1.1" "Version of the gmail-message-mode.el package.")
+(defconst gmail-message-mode-version-int 3 "Version of the gmail-message-mode.el package, as an integer.")
 (defun gmail-message-mode-bug-report ()
   "Opens github issues page in a web browser. Please send any bugs you find.
 Please include your emacs and gmail-message-mode versions."
@@ -171,7 +172,46 @@ Also defines a key \\[gmail-message-mode-save-finish-suspend] for `gmail-message
 
 \\{gmail-message-mode-map}"
   :group 'gmail-message-mode
-  (add-hook 'ham-mode-md2html-hook 'gmail-message-mode--fix-tags :local))
+  (add-hook 'ham-mode-md2html-hook 'gmail-message-mode--fix-tags :local)
+  (gmail-message-mode--propertize-buffer))
+
+(defvar gmail-message-mode--end-regexp
+  "<br *clear=\"all\">\\|<div><div *class=\"gmail_extra\">\\|<div *class=\"gmail_extra\">"
+  "Regexp defining where a message ends and signature or quote starts.")
+
+(defcustom gmail-message-mode-signature-properties
+  `(display ,(if (char-displayable-p ?…) "..." "…")
+            intangible t
+            read-only t
+            pointer arrow
+            mouse-face mode-line-highlight
+            keymap ,(let ((map (make-sparse-keymap)))
+                      (define-key map "\C-j" 'gmail-message-mode--expand-end)
+                      (define-key map "\C-i" 'gmail-message-mode--expand-end)
+                      (define-key map [return] 'gmail-message-mode--expand-end)
+                      map))
+  "Property list to use on the signature.
+
+Does not affect the final e-mail. This is just used to hide
+useless stuff from the user."
+  :type '(repeat symbol (choice symbol string))
+  :group 'gmail-message-mode
+  :package-version '(gmail-message-mode . "1.0.1"))
+
+(defun gmail-message-mode--expand-end ()
+  "Expand the ending of the message, if it was collapsed."
+  (interactive)
+  (let ((inhibit-read-only t))
+    (remove-text-properties
+     (point-min) (point-max)
+     gmail-message-mode-signature-properties)))
+
+(defun gmail-message-mode--propertize-buffer ()
+  "Add some text properties to the buffer, like coloring the signature."
+  (goto-char (point-min))
+  (when (search-forward-regexp gmail-message-mode--end-regexp nil :noerror)
+    (add-text-properties (match-beginning 0) (point-max)
+                         gmail-message-mode-signature-properties)))
 
 (define-key gmail-message-mode-map (kbd "C-c C-z") 'gmail-message-mode-save-finish-suspend)
 

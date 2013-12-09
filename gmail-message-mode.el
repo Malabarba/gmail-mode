@@ -94,6 +94,8 @@
 ;; 1.0   - 2013/12/05 - Created File.
 ;;; Code:
 
+(require 'ham-mode)
+
 (defconst gmail-message-mode-version "1.0.1" "Version of the gmail-message-mode.el package.")
 (defconst gmail-message-mode-version-int 2 "Version of the gmail-message-mode.el package, as an integer.")
 (defun gmail-message-mode-bug-report ()

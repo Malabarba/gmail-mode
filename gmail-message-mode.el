@@ -4,10 +4,10 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/gmail-message-mode
-;; Version: 1.2
+;; Version: 1.3
 ;; Package-Requires: ((ham-mode "1.0"))
 ;; Keywords: mail convenience emulation
-;; Prefix: gmail-message-mode
+;; Prefix: gmm/
 ;; Separator: -
 
 ;;; Commentary:
@@ -87,6 +87,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.3   - 2013/12/10 - Support for edit-server (from chrome).
 ;; 1.2   - 2013/12/10 - BREAKING CHANGES. Renamed a bunch of stuff.
 ;; 1.1   - 2013/12/09 - gmm/signature-properties can hide the signature.
 ;; 1.0.1 - 2013/12/07 - gmm/-blockquote.
@@ -94,8 +95,8 @@
 ;;; Code:
 (require 'ham-mode)
 
-(defconst gmail-message-mode-version "1.2" "Version of the gmail-message-mode.el package.")
-(defconst gmail-message-mode-version-int 4 "Version of the gmail-message-mode.el package, as an integer.")
+(defconst gmail-message-mode-version "1.3" "Version of the gmail-message-mode.el package.")
+(defconst gmail-message-mode-version-int 6 "Version of the gmail-message-mode.el package, as an integer.")
 (defun gmail-message-mode-bug-report ()
   "Opens github issues page in a web browser. Please send any bugs you find.
 Please include your emacs and gmail-message-mode versions."
@@ -108,6 +109,7 @@ Please include your emacs and gmail-message-mode versions."
 (defcustom gmm/auto-mode-list
   '("[\\\\/]mail-google-com.*\\.\\(ckr\\|html?\\|txt\\)\\'" ;conkeror and other stuff
     ".*[\\\\/]itsalltext[\\\\/]mail\\.google\\..*\\.txt\\'" ;it's all text
+    ".*[\\\\/]-gmm-mirror-[0-9]\\{5\\}\\.html\\'" ;Ourselves
     )
   "List of regexps which will be added to `auto-mode-alist' (associated to `gmail-message-mode').
 
@@ -148,6 +150,13 @@ browser can take focus automatically."
           " padding-left: 1ex;"
           "\" class=\"gmail_quote\">"))
 
+(defvar gmm/-mirrored-file nil
+  "Temporary file used to generate the content of edit-server buffers.
+
+Necessary because edit-server doesn't use actual files to
+communicate with chrome.")
+(make-variable-buffer-local 'gmm/-mirrored-file)
+
 (defun gmm/-fix-tags (file)
   "Fix special tags for gmail, such as blockquote."
   (let ((newContents
@@ -173,6 +182,49 @@ Also defines a key \\[gmm/save-finish-suspend] for `gmm/save-finish-suspend'.
   :group 'gmail-message-mode
   (add-hook 'ham-mode-md2html-hook 'gmm/-fix-tags :local)
   (gmm/-propertize-buffer))
+
+;;;###autoload
+(define-derived-mode gmail-message-edit-server-mode text-mode "GMail/mirror"
+  "Designed for GMail messages coming from google-chrome's \"Edit with Emacs\".
+
+Not actually meant for editing. This just sets up the buffer as a
+mirrored version of an html file that you'll be editing with the
+actual `gmail-message-mode'.
+
+This is supposed to be added to `edit-server-url-major-mode-alist',
+so that it's called in an edit-server buffer. If you're trying to
+use this in any other way, you're probably using the wrong
+function. Try using (or extending) `gmail-message-mode' instead."
+  :group 'gmail-message-mode
+  (unless (and (boundp 'edit-server-edit-mode)
+               edit-server-edit-mode)
+    (error "This isn't an edit-server buffer!
+You're probably using this mode wrong.
+See the documentation for `gmail-message-edit-server-mode'."))
+  (let ((file (gmm/-generate-temp-file-name))
+        (save-function `(lambda ()
+                          (with-current-buffer ,(current-buffer)
+                            (edit-server-save)))))
+    (setq gmm/-mirrored-file file)
+    (write-file file :confirm)
+    (add-hook 'edit-server-done-hook 'gmm/-reflect-temp-file nil :local)
+    (find-file file)
+    (add-hook 'ham-mode-md2html-hook save-function :append :local)))
+(eval-after-load 'edit-server
+  '(add-to-list 'edit-server-url-major-mode-alist
+                '("mail\\.google\\.com" . gmail-message-edit-server-mode)))
+
+(defun gmm/-generate-temp-file-name ()
+  (let (file)
+    (while (or (null file) (file-exists-p file))
+      (setq file (format "%s%s-%s-%s.html" temporary-file-directory
+                         (buffer-name) "gmm-mirror" (random 100000))))
+    file))
+
+(defun gmm/-reflect-temp-file ()
+  "Make current buffer reflect file given by `gmm/-mirrored-file'"
+  (erase-buffer)
+  (insert-file-contents gmm/-mirrored-file))
 
 (defvar gmm/-end-regexp
   "<br *clear=\"all\">\\|<div><div *class=\"gmail_extra\">\\|<div *class=\"gmail_extra\">"

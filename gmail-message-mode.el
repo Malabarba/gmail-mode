@@ -92,6 +92,7 @@
 ;; 1.0.1 - 2013/12/07 - gmm/-blockquote.
 ;; 1.0   - 2013/12/05 - Created File.
 ;;; Code:
+(require 'ham-mode)
 
 (defconst gmail-message-mode-version "1.2" "Version of the gmail-message-mode.el package.")
 (defconst gmail-message-mode-version-int 4 "Version of the gmail-message-mode.el package, as an integer.")
@@ -168,9 +169,7 @@ still saved as html behind the scenes.
 \\<gmail-message-mode-map>
 Also defines a key \\[gmm/save-finish-suspend] for `gmm/save-finish-suspend'.
 
-\\{gmail-message-mode-map}
-\\{ham-mode-map}
-\\{markdown-mode-map}"
+\\{gmail-message-mode-map}"
   :group 'gmail-message-mode
   (add-hook 'ham-mode-md2html-hook 'gmm/-fix-tags :local)
   (gmm/-propertize-buffer))

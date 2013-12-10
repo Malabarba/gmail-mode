@@ -34,15 +34,12 @@ plugins, it's hard to catch them all. You may have to add entries
 manually to `auto-mode-alist`, to make sure `gmail-message-mode` is
 activated.
 
-Here's an example. One of the lines in `gmail-message-mode-activate`
-is:
-
 ## Plugins ##
 
 1. **Firefox** - [It's all text][] combined with [Old Compose][] (see [this thread][] on why you need the second).
 2. **Google-Chrome** - [Several][]
 3. **Conkeror** - [Spawn Helper (built-in)][]
-
+4. *Others* - Tried it in another browser? [let me know][]!
 
 [Activation]: #activation
 
@@ -59,3 +56,6 @@ is:
 [Old Compose]: http://oldcompose.com/
 
 [1]: https://github.com/Bruce-Connor/ham-mode
+
+[let me know]: https://github.com/Bruce-Connor/gmail-message-mode/issues/new
+

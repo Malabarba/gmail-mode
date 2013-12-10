@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/gmail-message-mode
-;; Version: 1.1
+;; Version: 1.2
 ;; Package-Requires: ((ham-mode "1.0"))
 ;; Keywords: mail convenience emulation
 ;; Prefix: gmail-message-mode
@@ -48,9 +48,6 @@
 ;; manually to `auto-mode-alist', to make sure `gmail-message-mode' is
 ;; activated.
 ;; 
-;; Here's an example. One of the lines in `gmail-message-mode-activate'
-;; is:
-;; 
 ;; ## Plugins ##
 ;; 
 ;; 1. **Firefox** - [It's all text][] combined with [Old Compose][] (see [this thread][] on why you need the second).
@@ -90,13 +87,14 @@
 ;; 
 
 ;;; Change Log:
-;; 1.1   - 2013/12/09 - gmail-message-mode-signature-properties can hide the signature.
-;; 1.0.1 - 2013/12/07 - gmail-message-mode--blockquote.
+;; 1.2   - 2013/12/10 - BREAKING CHANGES. Renamed a bunch of stuff.
+;; 1.1   - 2013/12/09 - gmm/signature-properties can hide the signature.
+;; 1.0.1 - 2013/12/07 - gmm/-blockquote.
 ;; 1.0   - 2013/12/05 - Created File.
 ;;; Code:
 
-(defconst gmail-message-mode-version "1.1" "Version of the gmail-message-mode.el package.")
-(defconst gmail-message-mode-version-int 3 "Version of the gmail-message-mode.el package, as an integer.")
+(defconst gmail-message-mode-version "1.2" "Version of the gmail-message-mode.el package.")
+(defconst gmail-message-mode-version-int 4 "Version of the gmail-message-mode.el package, as an integer.")
 (defun gmail-message-mode-bug-report ()
   "Opens github issues page in a web browser. Please send any bugs you find.
 Please include your emacs and gmail-message-mode versions."
@@ -106,9 +104,9 @@ Please include your emacs and gmail-message-mode versions."
   (browse-url "https://github.com/Bruce-Connor/gmail-message-mode/issues/new"))
 
 ;;;###autoload
-(defcustom gmail-message-mode-auto-mode-list
-  '("mail.google.com.*.\\(ckr\\|html?\\|txt\\)\\'" ;conkeror and other stuff
-    ".*[\\\\/]itsalltext[\\\\/]mail\.google\..*\\'" ;it's all text
+(defcustom gmm/auto-mode-list
+  '("[\\\\/]mail-google-com.*\\.\\(ckr\\|html?\\|txt\\)\\'" ;conkeror and other stuff
+    ".*[\\\\/]itsalltext[\\\\/]mail\\.google\\..*\\.txt\\'" ;it's all text
     )
   "List of regexps which will be added to `auto-mode-alist' (associated to `gmail-message-mode').
 
@@ -119,16 +117,16 @@ If you don't want `gmail-message-mode' to add itself to your
 `auto-mode-alist' simply set this variable to nil.
 
 If you add items manually (not through the customization
-interface), you'll need to call `gmail-message-mode--set-amlist' for it
+interface), you'll need to call `gmm/-set-amlist' for it
 to take effect.
 Removing items only takes effect after restarting Emacs."
   :type '(repeat regexp)
   :group 'gmail-message-mode
-  :set 'gmail-message-mode--set-amlist
+  :set 'gmm/-set-amlist
   :initialize 'custom-initialize-default
   :package-version '(gmail-message-mode . "1.0"))
 
-(defun gmail-message-mode-save-finish-suspend ()
+(defun gmm/save-finish-suspend ()
   "Save the buffer as html, call `server-edit', and suspend the emacs frame.
 
 This command is used for finishing your edits. It'll do all the
@@ -143,20 +141,20 @@ browser can take focus automatically."
       (suspend-frame)
     (message "Not in a graphical frame, won't call `suspend-frame'.")))
 
-(defvar gmail-message-mode--blockquote
+(defvar gmm/-blockquote
   (concat "<blockquote style=\"margin: 0px 0px 0px 0.8ex;"
           " border-left: 1px solid rgb(204, 204, 204);"
           " padding-left: 1ex;"
           "\" class=\"gmail_quote\">"))
 
-(defun gmail-message-mode--fix-tags (file)
+(defun gmm/-fix-tags (file)
   "Fix special tags for gmail, such as blockquote."
   (let ((newContents
          (with-temp-buffer
            (insert-file-contents file)
            (goto-char (point-min))
            (while (search-forward "<blockquote>" nil t)
-             (replace-match gmail-message-mode--blockquote :fixedcase :literal))
+             (replace-match gmm/-blockquote :fixedcase :literal))
            (buffer-string))))
     (write-region newContents nil file nil t)))
 
@@ -168,27 +166,30 @@ When this mode is activated in an html file, the buffer is
 converted to markdown and you may edit at will, but the file is
 still saved as html behind the scenes.
 \\<gmail-message-mode-map>
-Also defines a key \\[gmail-message-mode-save-finish-suspend] for `gmail-message-mode-save-finish-suspend'.
+Also defines a key \\[gmm/save-finish-suspend] for `gmm/save-finish-suspend'.
 
-\\{gmail-message-mode-map}"
+\\{gmail-message-mode-map}
+\\{ham-mode-map}
+\\{markdown-mode-map}"
   :group 'gmail-message-mode
-  (add-hook 'ham-mode-md2html-hook 'gmail-message-mode--fix-tags :local)
-  (gmail-message-mode--propertize-buffer))
+  (add-hook 'ham-mode-md2html-hook 'gmm/-fix-tags :local)
+  (gmm/-propertize-buffer))
 
-(defvar gmail-message-mode--end-regexp
+(defvar gmm/-end-regexp
   "<br *clear=\"all\">\\|<div><div *class=\"gmail_extra\">\\|<div *class=\"gmail_extra\">"
   "Regexp defining where a message ends and signature or quote starts.")
 
-(defcustom gmail-message-mode-signature-properties
+(defcustom gmm/signature-properties
   `(display ,(if (char-displayable-p ?…) "..." "…")
             intangible t
-            read-only t
             pointer arrow
             mouse-face mode-line-highlight
             keymap ,(let ((map (make-sparse-keymap)))
-                      (define-key map "\C-j" 'gmail-message-mode--expand-end)
-                      (define-key map "\C-i" 'gmail-message-mode--expand-end)
-                      (define-key map [return] 'gmail-message-mode--expand-end)
+                      (define-key map [down-mouse-1] 'gmm/-expand-end)
+                      (define-key map [remap self-insert-command] 'gmm/-expand-end)
+                      (define-key map "\C-j" 'gmm/-expand-end)
+                      (define-key map "\C-i" 'gmm/-expand-end)
+                      (define-key map [return] 'gmm/-expand-end)
                       map))
   "Property list to use on the signature.
 
@@ -198,35 +199,39 @@ useless stuff from the user."
   :group 'gmail-message-mode
   :package-version '(gmail-message-mode . "1.0.1"))
 
-(defun gmail-message-mode--expand-end ()
+(defun gmm/-expand-end ()
   "Expand the ending of the message, if it was collapsed."
   (interactive)
   (let ((inhibit-read-only t))
-    (remove-text-properties
-     (point-min) (point-max)
-     gmail-message-mode-signature-properties)))
+    (when (remove-text-properties
+           (point-min) (point-max)
+           gmm/signature-properties)
+      (message "Signature and quotes expanded, see `%s' to disable hiding."
+               'gmm/signature-properties))))
 
-(defun gmail-message-mode--propertize-buffer ()
+(defun gmm/-propertize-buffer ()
   "Add some text properties to the buffer, like coloring the signature."
   (goto-char (point-min))
-  (when (search-forward-regexp gmail-message-mode--end-regexp nil :noerror)
+  (when (search-forward-regexp gmm/-end-regexp nil :noerror)
     (add-text-properties (match-beginning 0) (point-max)
-                         gmail-message-mode-signature-properties)))
+                         gmm/signature-properties)
+    (message "Hiding garbage at the end. See `%s' to disable this"
+             'gmm/signature-properties)))
 
-(define-key gmail-message-mode-map (kbd "C-c C-z") 'gmail-message-mode-save-finish-suspend)
+(define-key gmail-message-mode-map (kbd "C-c C-z") 'gmm/save-finish-suspend)
 
 ;;;###autoload
-(defun gmail-message-mode--set-amlist (&optional sym val)
+(defun gmm/-set-amlist (&optional sym val)
   "Reset the auto-mode-alist."
   (when sym
     (set-default sym val))
   (mapc
    (lambda (x) (add-to-list 'auto-mode-alist (cons x 'gmail-message-mode)))
-   gmail-message-mode-auto-mode-list))
+   gmm/auto-mode-list))
 ;;;###autoload
 (mapc
  (lambda (x) (add-to-list 'auto-mode-alist (cons x 'gmail-message-mode)))
- gmail-message-mode-auto-mode-list)
+ gmm/auto-mode-list)
 
 (provide 'gmail-message-mode)
 ;;; gmail-message-mode.el ends here.

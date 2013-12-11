@@ -108,8 +108,8 @@ Please include your emacs and gmail-message-mode versions."
 ;;;###autoload
 (defcustom gmm/auto-mode-list
   '("[\\\\/]mail-google-com.*\\.\\(ckr\\|html?\\|txt\\)\\'" ;conkeror and other stuff
-    ".*[\\\\/]itsalltext[\\\\/]mail\\.google\\..*\\.txt\\'" ;it's all text
-    ".*[\\\\/]-gmm-mirror-[0-9]\\{5\\}\\.html\\'" ;Ourselves
+    "[\\\\/]itsalltext[\\\\/]mail\\.google\\..*\\.txt\\'" ;it's all text
+    "-gmm-mirror-[0-9]\\{5\\}\\.gmm\\'" ;Ourselves
     )
   "List of regexps which will be added to `auto-mode-alist' (associated to `gmail-message-mode').
 
@@ -196,32 +196,55 @@ so that it's called in an edit-server buffer. If you're trying to
 use this in any other way, you're probably using the wrong
 function. Try using (or extending) `gmail-message-mode' instead."
   :group 'gmail-message-mode
-  (unless (and (boundp 'edit-server-edit-mode)
-               edit-server-edit-mode)
+  (unless (and (boundp 'edit-server-url) edit-server-url)
     (error "This isn't an edit-server buffer!
 You're probably using this mode wrong.
 See the documentation for `gmail-message-edit-server-mode'."))
-  (let ((file (gmm/-generate-temp-file-name))
-        (save-function `(lambda ()
-                          (with-current-buffer ,(current-buffer)
-                            (edit-server-save)))))
+  (let ((file (gmm/-generate-temp-file-name)))
     (setq gmm/-mirrored-file file)
-    (write-file file :confirm)
-    (add-hook 'edit-server-done-hook 'gmm/-reflect-temp-file nil :local)
-    (find-file file)
-    (add-hook 'ham-mode-md2html-hook save-function :append :local)))
-(eval-after-load 'edit-server
-  '(add-to-list 'edit-server-url-major-mode-alist
-                '("mail\\.google\\.com" . gmail-message-edit-server-mode)))
+    (while (null (ignore-errors
+                   (write-region (buffer-string) nil
+                                 file nil nil nil 'excl) t))
+      (setq file (gmm/-generate-temp-file-name)))
+    (gmm/-prepare-mirrored-file)
+    (add-hook 'edit-server-done-hook 'gmm/-reflect-mirrored-file nil :local)
+    ;; we can't open the mirrored file here, because then it would be
+    ;; used by edit-server as the actual client. We need to open it
+    ;; after edit-server-mode is activated. (this the advice below)
+    ))
+
+;; (remove-hook 'post-command-hook (lambda () (message "Buf %s\n%s\n%s" (current-buffer)
+;;                                             last-command this-command)))
+
+(defun gmm/-prepare-mirrored-file ()
+    (message "oi %s %s" gmm/-mirrored-file (current-buffer))
+  (unless (file-exists-p gmm/-mirrored-file)
+    (error "Mirror file %s not found." gmm/-mirrored-file))
+  (let* ((b (current-buffer))
+         (save-function `(lambda (&optional file)
+                           (with-current-buffer ,b
+                             (edit-server-save)))))
+    (save-current-buffer
+      (find-file gmm/-mirrored-file)
+      (add-hook 'ham-mode-md2html-hook save-function :append :local))
+    (bury-buffer b)))
+    
+;; (defadvice edit-server-show-edit-buffer
+;;   (after gmm/-after-edit-server-show-edit-buffer-advice () activate)
+;;   (message "oi %s %s" gmm/-mirrored-file (current-buffer))
+;;   (when gmm/-mirrored-file (gmm/-prepare-mirrored-file)))
 
 (defun gmm/-generate-temp-file-name ()
-  (let (file)
+  (let ((name (replace-regexp-in-string
+               "[^[:alnum:]-]" "_" (buffer-name)))
+        file)
     (while (or (null file) (file-exists-p file))
-      (setq file (format "%s%s-%s-%s.html" temporary-file-directory
-                         (buffer-name) "gmm-mirror" (random 100000))))
-    file))
+      (setq file
+            (format "%s%s-%s-%s.gmm" temporary-file-directory
+                    name "gmm-mirror" (random 100000))))
+    file)) 
 
-(defun gmm/-reflect-temp-file ()
+(defun gmm/-reflect-mirrored-file ()
   "Make current buffer reflect file given by `gmm/-mirrored-file'"
   (erase-buffer)
   (insert-file-contents gmm/-mirrored-file))
@@ -280,9 +303,13 @@ useless stuff from the user."
    (lambda (x) (add-to-list 'auto-mode-alist (cons x 'gmail-message-mode)))
    gmm/auto-mode-list))
 ;;;###autoload
-(mapc
- (lambda (x) (add-to-list 'auto-mode-alist (cons x 'gmail-message-mode)))
- gmm/auto-mode-list)
+(progn
+  (eval-after-load 'edit-server
+    '(add-to-list 'edit-server-url-major-mode-alist
+                  '("mail\\.google\\." . gmail-message-edit-server-mode))) 
+  (mapc
+   (lambda (x) (add-to-list 'auto-mode-alist (cons x 'gmail-message-mode)))
+   gmm/auto-mode-list))
 
 (provide 'gmail-message-mode)
 ;;; gmail-message-mode.el ends here.

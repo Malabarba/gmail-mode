@@ -37,7 +37,7 @@ activated.
 ## Plugins ##
 
 1. **Firefox** - [It's all text][] combined with [Old Compose][] (see [this thread][] on why you need the second).
-2. **Google-Chrome** - [Several][]
+2. **Google-Chrome (or Chromium)** - [Edit with emacs][]
 3. **Conkeror** - [Spawn Helper (built-in)][]
 4. *Others* - Tried it in another browser? [let me know][]!
 
@@ -47,7 +47,7 @@ activated.
 
 [It's all text]: https://addons.mozilla.org/en-US/firefox/addon/its-all-text/
 
-[Several]: http://superuser.com/questions/261689/its-all-text-for-chrome
+[Edit with emacs]: http://www.emacswiki.org/emacs/Edit_with_Emacs
 
 [Spawn Helper (built-in)]: http://conkeror.org/ConkerorSpawnHelper
 

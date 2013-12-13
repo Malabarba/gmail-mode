@@ -17,7 +17,15 @@ browser.
   markdown and you may edit at will, but the file is still saved as
   html behind the scenes so GMail won't know a thing! *See
   [ham-mode][1] to understand how this works.*
-  
+
+
+The point is that you can write gmail messages as *plain text*, and
+they will show up fine when you go back to gmail. And if you want more
+than plain text, you can write in Markdown syntax, which provides you
+with an easy way to add *bullet-points*, *lists*, *bold*, *italics*,
+etc, (which is, in fact, faster than mousing through gmail's web
+interface).
+
 Activation
 ----------
 Make sure you install it:
@@ -29,10 +37,11 @@ And that's it!
 
 This package will (using `auto-mode-alist`) configure emacs to
 activate `gmail-message-mode` whenever you're editing a file that
-seems to be a gmail message. However, given the wide range of possible
-plugins, it's hard to catch them all. You may have to add entries
-manually to `auto-mode-alist`, to make sure `gmail-message-mode` is
-activated.
+seems to be a gmail message (if you don't want this, see [Disabling][]
+below). However, given the wide range of possible plugins, it's hard
+to catch them all. You may have to add entries manually to
+`auto-mode-alist`, to make sure `gmail-message-mode` is activated.
+
 
 ## Plugins ##
 
@@ -40,6 +49,17 @@ activated.
 2. **Google-Chrome (or Chromium)** - [Edit with emacs][]
 3. **Conkeror** - [Spawn Helper (built-in)][]
 4. *Others* - Tried it in another browser? [let me know][]!
+
+## Disabling ##
+
+To keep `gmail-message-mode` from automatically adding itself to your
+`auto-mode-alist`, just add the following snippet before the package
+is loaded:
+
+    (setq 
+
+
+[Disabling]: #disabling
 
 [Activation]: #activation
 

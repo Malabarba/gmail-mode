@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/gmail-message-mode
-;; Version: 1.3
+;; Version: 1.3.1
 ;; Package-Requires: ((ham-mode "1.0"))
 ;; Keywords: mail convenience emulation
 ;; Prefix: gmm/
@@ -87,6 +87,7 @@
 ;; 
 
 ;;; Change Log:
+;; 1.3.1 - 2013/12/13 - Informative mode name.
 ;; 1.3   - 2013/12/10 - Support for edit-server (from chrome).
 ;; 1.2   - 2013/12/10 - BREAKING CHANGES. Renamed a bunch of stuff.
 ;; 1.1   - 2013/12/09 - gmm/signature-properties can hide the signature.
@@ -95,8 +96,8 @@
 ;;; Code:
 (require 'ham-mode)
 
-(defconst gmail-message-mode-version "1.3" "Version of the gmail-message-mode.el package.")
-(defconst gmail-message-mode-version-int 6 "Version of the gmail-message-mode.el package, as an integer.")
+(defconst gmail-message-mode-version "1.3.1" "Version of the gmail-message-mode.el package.")
+(defconst gmail-message-mode-version-int 7 "Version of the gmail-message-mode.el package, as an integer.")
 (defun gmail-message-mode-bug-report ()
   "Opens github issues page in a web browser. Please send any bugs you find.
 Please include your emacs and gmail-message-mode versions."
@@ -183,7 +184,10 @@ Also defines a key \\[gmm/save-finish-suspend] for `gmm/save-finish-suspend'.
   (gmm/-propertize-buffer))
 
 ;;;###autoload
-(define-derived-mode gmail-message-edit-server-mode text-mode "GMail/mirror"
+(define-derived-mode gmail-message-edit-server-mode text-mode
+  "GMail/mirror (do NOT edit)"
+  ;; (propertize "GMail/mirror (do NOT edit)"
+  ;;             'help-echo "This buffer is kept as a mirror of another file.\n\tDon't edit this buffer!")
   "Designed for GMail messages coming from google-chrome's \"Edit with Emacs\".
 
 Not actually meant for editing. This just sets up the buffer as a
@@ -207,7 +211,7 @@ See the documentation for `gmail-message-edit-server-mode'."))
                    (write-region (buffer-string) nil
                                  file nil nil nil 'excl) t))
       (setq file (gmm/-generate-temp-file-name)))
-    (message "oi %s %s" gmm/-mirrored-file (current-buffer))
+    (message "Opened mirror buffer %s, mirrored file is %s." gmm/-mirrored-file (current-buffer))
     (unless (file-exists-p file)
       (error "Mirror file %s not found, but we just created it, so something's really wrong."
              file))

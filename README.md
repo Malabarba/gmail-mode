@@ -66,7 +66,7 @@ To keep `gmail-message-mode` from automatically adding itself to your
 `auto-mode-alist`, just add the following snippet before the package
 is loaded:
 
-    (setq 
+    (setq gmm/auto-mode-list nil)
 
 
 [Disabling]: #disabling

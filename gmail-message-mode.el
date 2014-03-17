@@ -331,7 +331,7 @@ the user doesn't accicentally edit the edit-server buffer."
   "Regexp defining where a message ends and signature or quote starts.")
 
 (defcustom gmm/signature-properties
-  `(display ,(if (char-displayable-p ?…) "..." "…")
+  `(display ,(if (char-displayable-p ?…) "…" "...")
             intangible t
             pointer arrow
             mouse-face mode-line-highlight

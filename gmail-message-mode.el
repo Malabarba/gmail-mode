@@ -141,8 +141,7 @@ browser can take focus automatically."
       (server-edit)
     (message "Not in a client buffer, won't call `server-edit'."))
   (if (and window-system (not (eq window-system 'pc)))
-      (suspend-frame)
-    (message "Not in a graphical frame, won't call `suspend-frame'.")))
+      (suspend-frame)))
 
 (defvar gmm/blockquote
   (concat "<blockquote style=\"margin: 0px 0px 0px 0.8ex;"
@@ -382,6 +381,8 @@ useless stuff from the user."
              'gmm/signature-properties)))
 
 (define-key gmail-message-mode-map (kbd "C-c C-z") 'gmm/save-finish-suspend)
+(define-key gmail-message-mode-map (kbd "C-c C-s") 'gmm/save-finish-suspend)
+(define-key gmail-message-mode-map (kbd "C-c C-c") 'server-edit)
 
 ;;;###autoload
 (defun gmm/set-amlist (&optional sym val)

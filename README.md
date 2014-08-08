@@ -55,9 +55,9 @@ to catch them all. You may have to add entries manually to
 
 ## Plugins ##
 
-1. **Firefox** - [It's all text][] combined with [Old Compose][] (see [this thread][] on why you need the second).
-2. **Google-Chrome (or Chromium)** - [Edit with emacs][]
+2. **Google-Chrome or Chromium** - [Edit with emacs][]
 3. **Conkeror** - [Spawn Helper (built-in)][]
+1. **Firefox** - Used to work with [It's all text][]. See [this thread][] for a hacky workaround.
 4. *Others* - Tried it in another browser? [let me know][]!
 
 ## Disabling ##
@@ -81,7 +81,7 @@ is loaded:
 
 [Spawn Helper (built-in)]: http://conkeror.org/ConkerorSpawnHelper
 
-[this thread]: http://github.com/docwhat/itsalltext
+[this thread]: https://github.com/docwhat/itsalltext/issues/36
 
 [Old Compose]: http://oldcompose.com/
 

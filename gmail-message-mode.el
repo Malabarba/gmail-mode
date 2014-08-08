@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/gmail-message-mode
-;; Version: 1.3.1
+;; Version: 1.3.2
 ;; Package-Requires: ((ham-mode "1.0"))
 ;; Keywords: mail convenience emulation
 ;; Prefix: gmm/
@@ -96,8 +96,8 @@
 ;;; Code:
 (require 'ham-mode)
 
-(defconst gmail-message-mode-version "1.3.1" "Version of the gmail-message-mode.el package.")
-(defconst gmail-message-mode-version-int 7 "Version of the gmail-message-mode.el package, as an integer.")
+(defconst gmail-message-mode-version "1.3.2" "Version of the gmail-message-mode.el package.")
+(defconst gmail-message-mode-version-int 8 "Version of the gmail-message-mode.el package, as an integer.")
 (defun gmail-message-mode-bug-report ()
   "Opens github issues page in a web browser. Please send any bugs you find.
 Please include your emacs and gmail-message-mode versions."
@@ -330,18 +330,25 @@ the user doesn't accicentally edit the edit-server buffer."
   "<br *clear=\"all\">\\|<div><div *class=\"gmail_extra\">\\|<div *class=\"gmail_extra\">"
   "Regexp defining where a message ends and signature or quote starts.")
 
+(defvar gmm/signature-map
+  (let ((map (make-sparse-keymap))) 
+    (mapc
+     (lambda (x) (define-key map x 'gmm/-expand-end))
+     '([down-mouse-1]
+       [remap self-insert-command]
+       "\C-j"
+       "\C-i"
+       [return]
+       [tab]))
+    map)
+  "Keymap used on the \"...\" button which hides the signature.")
+
 (defcustom gmm/signature-properties
-  `(display ,(if (char-displayable-p ?…) "…" "...")
+  `(display ,(propertize "..." 'face 'custom-button)
             intangible t
             pointer arrow
             mouse-face mode-line-highlight
-            keymap ,(let ((map (make-sparse-keymap)))
-                      (define-key map [down-mouse-1] 'gmm/-expand-end)
-                      (define-key map [remap self-insert-command] 'gmm/-expand-end)
-                      (define-key map "\C-j" 'gmm/-expand-end)
-                      (define-key map "\C-i" 'gmm/-expand-end)
-                      (define-key map [return] 'gmm/-expand-end)
-                      map))
+            keymap gmm/signature-map)
   "Property list to use on the signature.
 
 Does not affect the final e-mail. This is just used to hide

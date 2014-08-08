@@ -211,12 +211,14 @@ See the documentation for `gmail-message-edit-server-mode'."))
                    (write-region (buffer-string) nil
                                  file nil nil nil 'excl) t))
       (setq file (gmm/-generate-temp-file-name)))
-    (message "Opened mirror buffer %s, mirrored file is %s." gmm/-mirrored-file (current-buffer))
+    (message "Opened mirror buffer %s, mirrored file is %s."
+             gmm/-mirrored-file (current-buffer))
     (unless (file-exists-p file)
       (error "Mirror file %s not found, but we just created it, so something's really wrong."
              file))
     (add-hook 'edit-server-done-hook 'gmm/-reflect-mirrored-file nil :local)
     (add-hook 'kill-buffer-hook 'gmm/-kill-mirror nil :local)
+    
     ;; ;;we'd like to make it read-only, but it bugs the process
     ;; (setq buffer-read-only t) 
     (let ((auto-mode-alist (cons '("-gmm-mirror-[0-9]\\{5\\}\\.gmm\\'"
@@ -252,7 +254,10 @@ using (or extending) `gmail-message-mode' instead."
   :group 'gmail-message-mode
   :group 'gmail-message-mode-edit-server
   (setq gmm/-mirror-buffer gmm/-mirror-buffer-let)
-  (add-hook 'ham-mode-md2html-hook 'gmm/edit-server-save :append :local)
+  ;; ;; We'd like to use this hook, so that the browser is always up
+  ;; ;; to date. But edit-with-emacs starts a new process every time
+  ;; ;; the browser is updated, which screws up the UX.
+  ;; (add-hook 'ham-mode-md2html-hook 'gmm/edit-server-save :append :local)
   (add-hook 'kill-buffer-hook 'gmm/-kill-mirror nil :local))
 
 (defun gmm/-kill-mirror ()
@@ -281,16 +286,16 @@ Doesn't actually save this buffer"
   (interactive)
   (with-current-buffer gmm/-mirror-buffer
     (let ((inhibit-read-only t))
-      (if (and (boundp 'gmm/-is-done) gmm/-is-done)
-          (edit-server-done)
-        (edit-server-save)))))
+      (edit-server-save))))
 
 (defun gmm/edit-server-done ()
   "Call \"done\" on the edit-server buffer.
 Ends up killing current buffer."
   (interactive)
-  (let ((gmm/-is-done t))
-    (save-buffer)))
+  (save-buffer)
+  (with-current-buffer gmm/-mirror-buffer
+    (let ((inhibit-read-only t))
+      (edit-server-done))))
 
 (defun gmm/edit-server-abort ()
   "Call \"abort\" on the edit-server buffer.
@@ -302,11 +307,11 @@ Ends up killing current buffer."
 
 (defadvice edit-server-edit-mode
   (after gmm/-after-edit-server-edit-mode-advice () activate)
-  "Makes sure the gmail-message-mode buffer receives focus. So
-the user doesn't accicentally edit the edit-server buffer."
+  "Makes sure the gmail-message-mode buffer receives focus.
+So the user doesn't accicentally edit the edit-server buffer."
   (when gmm/-mirrored-file
     (message
-     "Swicthed from edit-server-buffer (%s) to the gmail-mode buffer %s"
+     "Switched from edit-server-buffer (%s) to the gmail-mode buffer %s"
      (buffer-name) (switch-to-buffer (get-file-buffer gmm/-mirrored-file)))
     ;; Ensure this buffer only displays in one window.
     (mapc 'delete-window (cdr (get-buffer-window-list)))))
@@ -317,9 +322,9 @@ the user doesn't accicentally edit the edit-server buffer."
         file)
     (while (or (null file) (file-exists-p file))
       (setq file
-            (format "%s%s-%s-%s.gmm" temporary-file-directory
+            (format "%s%s-%s-%05d.gmm" temporary-file-directory
                     name "gmm-mirror" (random 100000))))
-    file)) 
+    file))
 
 (defun gmm/-reflect-mirrored-file ()
   "Make current buffer reflect file given by `gmm/-mirrored-file'"

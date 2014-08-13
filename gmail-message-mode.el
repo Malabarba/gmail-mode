@@ -110,6 +110,7 @@ Please include your emacs and gmail-message-mode versions."
 (defcustom gmm/auto-mode-list
   '("[\\\\/]mail-google-com.*\\.\\(ckr\\|html?\\|txt\\)\\'" ;conkeror and other stuff
     "[\\\\/]itsalltext[\\\\/]mail\\.google\\..*\\.txt\\'" ;it's all text
+    "[\\\\/]pentadactyl\\.mail\\.google\\..*\\.txt\\'" ;pentadactyl
     )
   "List of regexps which will be added to `auto-mode-alist' (associated to `gmail-message-mode').
 

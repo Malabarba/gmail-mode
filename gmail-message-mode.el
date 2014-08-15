@@ -353,7 +353,7 @@ So the user doesn't accicentally edit the edit-server buffer."
             intangible t
             pointer arrow
             mouse-face mode-line-highlight
-            keymap gmm/signature-map)
+            keymap ,gmm/signature-map)
   "Property list to use on the signature.
 
 Does not affect the final e-mail. This is just used to hide

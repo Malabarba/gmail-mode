@@ -95,6 +95,7 @@
 ;; 1.0   - 2013/12/05 - Created File.
 ;;; Code:
 (require 'ham-mode)
+(require 'server)
 
 (defconst gmail-message-mode-version "1.3.2" "Version of the gmail-message-mode.el package.")
 (defconst gmail-message-mode-version-int 8 "Version of the gmail-message-mode.el package, as an integer.")
@@ -286,7 +287,8 @@ Doesn't actually save this buffer"
   (interactive)
   (with-current-buffer gmm/-mirror-buffer
     (let ((inhibit-read-only t))
-      (edit-server-save))))
+      (with-no-warnings
+        (edit-server-save)))))
 
 (defun gmm/edit-server-done ()
   "Call \"done\" on the edit-server buffer.
@@ -295,7 +297,8 @@ Ends up killing current buffer."
   (save-buffer)
   (with-current-buffer gmm/-mirror-buffer
     (let ((inhibit-read-only t))
-      (edit-server-done))))
+      (with-no-warnings
+        (edit-server-done)))))
 
 (defun gmm/edit-server-abort ()
   "Call \"abort\" on the edit-server buffer.
@@ -303,7 +306,8 @@ Ends up killing current buffer."
   (interactive)
   (with-current-buffer gmm/-mirror-buffer
     (let ((inhibit-read-only t))
-      (edit-server-abort))))
+      (with-no-warnings
+        (edit-server-abort)))))
 
 (defadvice edit-server-edit-mode
   (after gmm/-after-edit-server-edit-mode-advice () activate)

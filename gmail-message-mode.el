@@ -108,9 +108,9 @@ Please include your emacs and gmail-message-mode versions."
 
 ;;;###autoload
 (defcustom gmm/auto-mode-list
-  '("[\\\\/]mail-google-com.*\\.\\(ckr\\|html?\\|txt\\)\\'" ;conkeror and other stuff
-    "[\\\\/]itsalltext[\\\\/]mail\\.google\\..*\\.txt\\'" ;it's all text
-    "[\\\\/]pentadactyl\\.mail\\.google\\..*\\.txt\\'" ;pentadactyl
+  `("[\\\\/]\\(inbox\\|mail\\)-google-com.*\\.\\(ckr\\|html?\\|txt\\)\\'" ;conkeror and other stuff
+    "[\\\\/]itsalltext[\\\\/]\\(inbox\\|mail\\)\\.google\\..*\\.txt\\'" ;it's all text
+    "[\\\\/]pentadactyl\\.\\(inbox\\|mail\\)\\.google\\..*\\.txt\\'" ;pentadactyl
     )
   "List of regexps which will be added to `auto-mode-alist' (associated to `gmail-message-mode').
 
@@ -397,7 +397,7 @@ useless stuff from the user."
 (progn
   (eval-after-load 'edit-server
     '(add-to-list 'edit-server-url-major-mode-alist
-                  '("mail\\.google\\." . gmail-message-edit-server-mode))) 
+                  '("\\(mail\\|inbox\\)\\.google\\." . gmail-message-edit-server-mode)))
   (mapc
    (lambda (x) (add-to-list 'auto-mode-alist (cons x 'gmail-message-mode)))
    gmm/auto-mode-list))

@@ -4,7 +4,7 @@
 
 ;; Author: Artur Malabarba <bruce.connor.am@gmail.com>
 ;; URL: http://github.com/Bruce-Connor/gmail-message-mode
-;; Version: 1.3.2
+;; Version: 1.4
 ;; Package-Requires: ((ham-mode "1.0"))
 ;; Keywords: mail convenience emulation
 ;; Prefix: gmm/
@@ -97,8 +97,8 @@
 (require 'ham-mode)
 (require 'server)
 
-(defconst gmail-message-mode-version "1.3.2" "Version of the gmail-message-mode.el package.")
-(defconst gmail-message-mode-version-int 8 "Version of the gmail-message-mode.el package, as an integer.")
+(defconst gmail-message-mode-version "1.4" "Version of the gmail-message-mode.el package.")
+(defconst gmail-message-mode-version-int 9 "Version of the gmail-message-mode.el package, as an integer.")
 (defun gmail-message-mode-bug-report ()
   "Opens github issues page in a web browser. Please send any bugs you find.
 Please include your emacs and gmail-message-mode versions."
